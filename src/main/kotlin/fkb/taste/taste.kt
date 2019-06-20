@@ -83,8 +83,8 @@ fun <A, B> pairWithValue(col: Collection<A>, value: B): Collection<Pair<A, B>> =
         col.map {Pair(it,value)}
 
 fun compIndex(path: Path): Map<String, Collection<Path>> =
-        traverse(path, mapOf(), {p, acc ->
-            updateIndex(acc, pairWithValue(allGrams(normalize(p.fileName.toString(), listOf('_', '-', '.', '$', ' '))), p.toAbsolutePath()))
+        traverse(path, mapOf(), {path, acc ->
+            updateIndex(acc, pairWithValue(allGrams(normalize(path.fileName.toString(), listOf('_', '-', '.', '$', ' '))), path.toAbsolutePath()))
         })
 
 fun main(args: Array<String>) {
