@@ -30,7 +30,7 @@ fun <T> filterRecursive(ts: Collection<T>, p: (t: T) -> Boolean): Collection<T> 
 }
 
 fun <T> filterTCO(ts: Collection<T>, p: (t: T) -> Boolean): Collection<T> {
-    fun inner(ts: Collection<T>, p: (t: T) -> Boolean, acc: List<T>): Collection<T> = if (ts.isEmpty()) acc else {
+    tailrec fun inner(ts: Collection<T>, p: (t: T) -> Boolean, acc: List<T>): Collection<T> = if (ts.isEmpty()) acc else {
         val head = ts.take(1)[0]
         if (p(head))
             inner(ts.drop(1), p, acc + head)
@@ -40,7 +40,7 @@ fun <T> filterTCO(ts: Collection<T>, p: (t: T) -> Boolean): Collection<T> {
     return inner(ts, p, listOf())
 }
 
-fun <A, B> fold(init: B, col: Collection<A>, f: (A, B) -> B): B = if (col.isEmpty()) init else {
+tailrec fun <A, B> fold(init: B, col: Collection<A>, f: (A, B) -> B): B = if (col.isEmpty()) init else {
     val head = col.take(1)[0]
     fold(f(head, init), col.drop(1), f)
 }
@@ -59,7 +59,7 @@ fun <T> traverse(root: Path, init: T, f: (Path, T) -> T): T =
         {path, acc -> if (! Files.isDirectory(path)) f(path, acc) else if (! Files.isSymbolicLink(path)) traverse(path, acc, f) else acc})
 
 fun nGrams(n: Int, str: String): Collection<String> {
-    fun inner(n: Int, str: String, acc: List<String>): Collection<String> =
+    tailrec fun inner(n: Int, str: String, acc: List<String>): Collection<String> =
         if (str.length < n) acc else
             inner(n, str.drop(1), acc + str.take(n))
     return inner(n, str, listOf())
@@ -83,8 +83,8 @@ fun <A, B> pairWithValue(col: Collection<A>, value: B): Collection<Pair<A, B>> =
         col.map {Pair(it,value)}
 
 fun compIndex(path: Path): Map<String, Collection<Path>> =
-        traverse(path, mapOf(), {path, acc ->
-            updateIndex(acc, pairWithValue(allGrams(normalize(path.fileName.toString(), listOf('_', '-', '.', '$', ' '))), path.toAbsolutePath()))
+        traverse(path, mapOf(), {p, acc ->
+            updateIndex(acc, pairWithValue(allGrams(normalize(p.fileName.toString(), listOf('_', '-', '.', '$', ' '))), p.toAbsolutePath()))
         })
 
 fun main(args: Array<String>) {
